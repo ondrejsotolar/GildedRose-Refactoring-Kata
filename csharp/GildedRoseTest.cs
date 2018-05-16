@@ -56,6 +56,12 @@ namespace csharp
                 SellIn = -1,
                 Quality = 0
             }},
+            { "backstage_14_21", new Item
+            {
+                Name = "Backstage passes to a TAFKAL80ETC concert",
+                SellIn = 14,
+                Quality = 21
+            }},
 
             { "conjured_3_6", new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}},
             { "conjured_3_1", new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 1}},
@@ -107,8 +113,6 @@ namespace csharp
         [TestCase("dexterity_-1_1", 1)]
         [TestCase("aged_-1_0", -2)]
         [TestCase("aged_2_0", -1)]
-        [TestCase("sulfuras_0_80", 0)]
-        [TestCase("sulfuras_-1_80", 0)]
         [TestCase("backstage_15_20", -1)]
         [TestCase("backstage_10_0", -2)]
         [TestCase("backstage_5_49", -1)]
@@ -128,6 +132,83 @@ namespace csharp
             Assert.IsTrue(gildedRose.GetItems() != null && gildedRose.GetItems().Count == 1);
             Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement, 
                 gildedRose.GetItems().First().Quality);
+
+            Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
+                gildedRose.GetItems().First().SellIn);
+        }
+
+        [TestCase("backstage_15_20", -1)]
+        public void DecreaseQualityByDecrement_Compare(string itemName, int decrement)
+        {
+            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
+
+            for (int i = 0; i < 10; i++)
+            {
+                gildedRose.UpdateQuality();
+
+                Assert.IsTrue(gildedRose.GetItems() != null && gildedRose.GetItems().Count == 1);
+                //Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
+                //    gildedRose.GetItems().First().Quality);
+
+                //Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
+                //    gildedRose.GetItems().First().SellIn);
+            }
+        }
+
+        [TestCase("backstage_15_20", -1)]
+        public void DecreaseQualityByDecrement_Old_Compare(string itemName, int decrement)
+        {
+            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
+
+            gildedRose.UpdateQuality_Old();
+
+            Assert.IsTrue(gildedRose.GetItems_Old() != null && gildedRose.GetItems_Old().Count == 1);
+            Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
+                gildedRose.GetItems_Old().First().Quality);
+
+            Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
+                gildedRose.GetItems_Old().First().SellIn);
+        }
+
+        [TestCase("dexterity_10_20", 1)]
+        [TestCase("dexterity_-1_10", 2)]
+        [TestCase("dexterity_-1_1", 1)]
+        [TestCase("aged_-1_0", -2)]
+        [TestCase("aged_2_0", -1)]
+        [TestCase("backstage_15_20", -1)]
+        [TestCase("backstage_10_0", -2)]
+        [TestCase("backstage_5_49", -1)]
+        [TestCase("backstage_10_49", -1)]
+        [TestCase("backstage_5_0", -3)]
+        [TestCase("backstage_-1_0", 0)]
+        public void DecreaseQualityByDecrement_Old(string itemName, int decrement)
+        {
+            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
+
+            gildedRose.UpdateQuality_Old();
+
+            Assert.IsTrue(gildedRose.GetItems_Old() != null && gildedRose.GetItems_Old().Count == 1);
+            Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
+                gildedRose.GetItems_Old().First().Quality);
+
+            Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
+                gildedRose.GetItems_Old().First().SellIn);
+        }
+
+        [TestCase("sulfuras_0_80", 0)]
+        [TestCase("sulfuras_-1_80", 0)]
+        public void DecreaseQualityByDecrement_Sulfuras(string itemName, int decrement)
+        {
+            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
+
+            gildedRose.UpdateQuality();
+
+            Assert.IsTrue(gildedRose.GetItems() != null && gildedRose.GetItems().Count == 1);
+            Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
+                gildedRose.GetItems().First().Quality);
+
+            Assert.AreEqual(TestData.GetItemByName(itemName).SellIn,
+                gildedRose.GetItems().First().SellIn);
         }
 
         [TestCase("dexterity_10_20", 1)]

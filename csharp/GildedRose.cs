@@ -16,7 +16,6 @@ namespace csharp
 
             this.Items = items; // old solution
             InitializeWarehouse(items);
-
         }
 
         private void InitializeWarehouse(IList<Item> items)
@@ -38,6 +37,11 @@ namespace csharp
         public List<Item> GetItems()
         {
             return _warehouse.Select(x => x.Item).ToList();
+        }
+
+        public List<Item> GetItems_Old()
+        {
+            return Items.ToList();
         }
 
         private void UpdateItem(WarehouseItem item)
