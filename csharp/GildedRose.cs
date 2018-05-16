@@ -1,13 +1,64 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace csharp
 {
+    public class WarehouseItem
+    {
+        public Item Item { get; set; }
+        public string WarehouseItemCategory { get; set; }
+    }
+
+    public class WarehouseItemCategories
+    {
+        public const string Aged = "Aged";
+        public const string Backstage = "Backstage";
+        public const string Sulfuras = "Sulfuras";
+        public const string Conjured = "Conjured";
+
+        private static List<string> _categories = new List<string>()
+        {
+            Aged, Backstage, Sulfuras, Conjured
+        };
+
+        public static void AddCategory(string category)
+        {
+            _categories.Add(category);
+        }
+
+        public static string GetCategory(string itemName)
+        {
+            return itemName == null ? null : _categories.FirstOrDefault(
+                x => itemName.StartsWith(x, StringComparison.InvariantCultureIgnoreCase));
+        }
+    }
+
     public class GildedRose
     {
+        private List<WarehouseItem> _warehouse;
         IList<Item> Items;
-        public GildedRose(IList<Item> Items)
+
+        public GildedRose(IList<Item> items)
         {
-            this.Items = Items;
+            this.Items = items;
+            InitializeWarehouse(items);
+        }
+
+        private void InitializeWarehouse(IList<Item> items)
+        {
+            if (items == null || !items.Any())
+                return;
+
+            _warehouse = new List<WarehouseItem>(items.Count);
+            foreach (var item in items)
+            {
+                _warehouse.Add(new WarehouseItem()
+                {
+                    Item = item,
+                    WarehouseItemCategory = WarehouseItemCategories.GetCategory(item.Name)
+                });
+            }
         }
 
         public void UpdateQuality()
