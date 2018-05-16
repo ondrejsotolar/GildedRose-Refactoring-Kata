@@ -20,6 +20,36 @@ namespace csharp
 
 	- "Conjured" items degrade in Quality twice as fast as normal items
      */
+    public class WarehouseItem
+    {
+        public Item Item { get; set; }
+        public string Category { get; set; }
+    }
+
+    public class WarehouseItemCategories
+    {
+        public const string Aged = "Aged";
+        public const string Backstage = "Backstage";
+        public const string Sulfuras = "Sulfuras";
+        public const string Conjured = "Conjured";
+
+        private static List<string> _categories = new List<string>()
+        {
+            Aged, Backstage, Sulfuras, Conjured
+        };
+
+        public static void AddCategory(string category)
+        {
+            _categories.Add(category);
+        }
+
+        public static string GetCategory(string itemName)
+        {
+            return itemName == null ? null : _categories.FirstOrDefault(
+                x => itemName.StartsWith(x, StringComparison.InvariantCultureIgnoreCase));
+        }
+    }
+
     public interface IWarehouseItemUpdateStrategy
     {
         void Update(Item item);
@@ -27,15 +57,68 @@ namespace csharp
 
     public class StandardItemUpdateStrategy : IWarehouseItemUpdateStrategy
     {
-        public void Update(Item item)
+        protected int Increment { get; set; }
+        protected int Bound { get; set; }
+
+        public StandardItemUpdateStrategy()
+        {
+            Increment = 1;
+            Bound = 0;
+        }
+
+        public virtual void Update(Item item)
         {
             if (item.Quality <= 0)
                 return;
 
-            if (item.SellIn <= 0 && item.Quality > 1)
-                item.Quality = item.Quality - 2;
-            else
-                item.Quality--;
+            var newQuality = item.Quality - (item.SellIn >= 0 ? Increment : Increment * 2);
+            item.Quality = newQuality > Bound ? newQuality : Bound;
+        }
+    }
+
+    public class ConjuredItemUpdateStrategy : StandardItemUpdateStrategy
+    {
+        public ConjuredItemUpdateStrategy()
+        {
+            Increment = 2;
+            Bound = 0;
+        }
+    }
+
+    public class SulfurasItemUpdateStrategy : IWarehouseItemUpdateStrategy
+    {
+        public void Update(Item item) {}
+    }
+
+    public class AgedItemUpdateStrategy : StandardItemUpdateStrategy
+    {
+        public AgedItemUpdateStrategy()
+        {
+            Increment = -1;
+            Bound = 50;
+        }
+    }
+
+    public class BackstageItemUpdateStrategy : StandardItemUpdateStrategy
+    {
+        public BackstageItemUpdateStrategy()
+        {
+            Increment = -1;
+            Bound = 50;
+        }
+
+        public override void Update(Item item)
+        {
+            if (item.SellIn <= 10 && item.SellIn > 5)
+            {
+                Increment = -2;
+            }
+            else if (item.SellIn <= 5)
+            {
+                Increment = -3;
+            }
+
+            base.Update(item);
         }
     }
 
@@ -47,7 +130,10 @@ namespace csharp
         {
             _strategies = new Dictionary<string, IWarehouseItemUpdateStrategy>()
             {
-                { "default", new StandardItemUpdateStrategy() }
+                { "default", new StandardItemUpdateStrategy() },
+                { "conjured", new ConjuredItemUpdateStrategy() },
+                { "sulfuras", new SulfurasItemUpdateStrategy() },
+                { "backstage", new BackstageItemUpdateStrategy() },
             };
         }
 
@@ -55,6 +141,15 @@ namespace csharp
         {
             switch (warehouseItem.Category)
             {
+                case WarehouseItemCategories.Backstage:
+                    _strategies["backstage"].Update(warehouseItem.Item);
+                    break;
+                case WarehouseItemCategories.Sulfuras:
+                    _strategies["sulfuras"].Update(warehouseItem.Item);
+                    break;
+                case WarehouseItemCategories.Conjured:
+                    _strategies["conjured"].Update(warehouseItem.Item);
+                    break;
                 default:
                     _strategies["default"].Update(warehouseItem.Item);
                     break;
