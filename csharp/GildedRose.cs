@@ -7,8 +7,8 @@ namespace csharp
     public class GildedRose
     {
         private List<WarehouseItem> _warehouse;
-        IList<Item> Items; // old solution
         private WarehouseItemUpdateService _warehouseItemUpdateService;
+        IList<Item> Items; // old solution
 
         public GildedRose(IList<Item> items)
         {
@@ -20,10 +20,11 @@ namespace csharp
 
         private void InitializeWarehouse(IList<Item> items)
         {
+            _warehouse = new List<WarehouseItem>();
+
             if (items == null || !items.Any())
                 return;
 
-            _warehouse = new List<WarehouseItem>(items.Count);
             foreach (var item in items)
             {
                 _warehouse.Add(new WarehouseItem()
@@ -39,22 +40,18 @@ namespace csharp
             return _warehouse.Select(x => x.Item).ToList();
         }
 
-        public List<Item> GetItems_Old()
-        {
-            return Items.ToList();
-        }
-
-        private void UpdateItem(WarehouseItem item)
-        {
-            _warehouseItemUpdateService.UpdateItem(item);
-        }
-
         public void UpdateQuality()
         {
             foreach (var item in _warehouse)
             {
-                UpdateItem(item);
+                _warehouseItemUpdateService.UpdateItem(item);
             }
+        }
+
+        // old sdolution
+        public List<Item> GetItems_Old()
+        {
+            return Items.ToList();
         }
 
         // old solution

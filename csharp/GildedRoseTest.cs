@@ -137,39 +137,6 @@ namespace csharp
                 gildedRose.GetItems().First().SellIn);
         }
 
-        [TestCase("backstage_15_20", -1)]
-        public void DecreaseQualityByDecrement_Compare(string itemName, int decrement)
-        {
-            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
-
-            for (int i = 0; i < 10; i++)
-            {
-                gildedRose.UpdateQuality();
-
-                Assert.IsTrue(gildedRose.GetItems() != null && gildedRose.GetItems().Count == 1);
-                //Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
-                //    gildedRose.GetItems().First().Quality);
-
-                //Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
-                //    gildedRose.GetItems().First().SellIn);
-            }
-        }
-
-        [TestCase("backstage_15_20", -1)]
-        public void DecreaseQualityByDecrement_Old_Compare(string itemName, int decrement)
-        {
-            var gildedRose = new GildedRose(TestData.GetItemByNameList(itemName));
-
-            gildedRose.UpdateQuality_Old();
-
-            Assert.IsTrue(gildedRose.GetItems_Old() != null && gildedRose.GetItems_Old().Count == 1);
-            Assert.AreEqual(TestData.GetItemByName(itemName).Quality - decrement,
-                gildedRose.GetItems_Old().First().Quality);
-
-            Assert.AreEqual(TestData.GetItemByName(itemName).SellIn - 1,
-                gildedRose.GetItems_Old().First().SellIn);
-        }
-
         [TestCase("dexterity_10_20", 1)]
         [TestCase("dexterity_-1_10", 2)]
         [TestCase("dexterity_-1_1", 1)]
@@ -245,8 +212,8 @@ namespace csharp
         [TestCase("Backstage passes to a TAFKAL80ETC concert", WarehouseItemCategories.Backstage)]
         [TestCase("Sulfuras, Hand of Ragnaros", WarehouseItemCategories.Sulfuras)]
         [TestCase("Conjured Mana Cake", WarehouseItemCategories.Conjured)]
-        [TestCase("+5 dexterity_10_20 Vest", null)]
-        [TestCase("Elixir of the Mongoose", null)]
+        [TestCase("+5 dexterity_10_20 Vest", WarehouseItemCategories.Standard)]
+        [TestCase("Elixir of the Mongoose", WarehouseItemCategories.Standard)]
         public void GetWarehouseItemCategory_PASS(string itemName, string expectedCategory)
         {
             Assert.AreEqual(expectedCategory, WarehouseItemCategories.GetCategory(itemName));

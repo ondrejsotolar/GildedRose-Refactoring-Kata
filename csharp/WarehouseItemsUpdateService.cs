@@ -18,6 +18,7 @@ namespace csharp
         public const string Backstage = "Backstage";
         public const string Sulfuras = "Sulfuras";
         public const string Conjured = "Conjured";
+        public const string Standard = "Standard";
 
         private static List<string> _categories = new List<string>()
         {
@@ -31,8 +32,10 @@ namespace csharp
 
         public static string GetCategory(string itemName)
         {
-            return itemName == null ? null : _categories.FirstOrDefault(
-                x => itemName.StartsWith(x, StringComparison.InvariantCultureIgnoreCase));
+            var category = itemName == null ? null 
+                : _categories.FirstOrDefault(x => itemName.StartsWith(x, StringComparison.InvariantCultureIgnoreCase));
+
+            return category ?? Standard;
         }
     }
 
@@ -114,7 +117,6 @@ namespace csharp
             }
 
             base.Update(item);
-
             Increment = -1;
         }
     }
@@ -127,34 +129,23 @@ namespace csharp
         {
             _strategies = new Dictionary<string, IWarehouseItemUpdateStrategy>()
             {
-                { "default", new StandardItemUpdateStrategy() },
-                { "conjured", new ConjuredItemUpdateStrategy() },
-                { "sulfuras", new SulfurasItemUpdateStrategy() },
-                { "backstage", new BackstageItemUpdateStrategy() },
-                { "aged", new AgedItemUpdateStrategy() }
+                { WarehouseItemCategories.Standard, new StandardItemUpdateStrategy() },
+                { WarehouseItemCategories.Conjured, new ConjuredItemUpdateStrategy() },
+                { WarehouseItemCategories.Sulfuras, new SulfurasItemUpdateStrategy() },
+                { WarehouseItemCategories.Backstage, new BackstageItemUpdateStrategy() },
+                { WarehouseItemCategories.Aged, new AgedItemUpdateStrategy() }
             };
+        }
+
+        public void AddStrategy(string category, IWarehouseItemUpdateStrategy strategy)
+        {
+            WarehouseItemCategories.AddCategory(category);
+            _strategies.Add(category, strategy);
         }
 
         public void UpdateItem(WarehouseItem warehouseItem)
         {
-            switch (warehouseItem.Category)
-            {
-                case WarehouseItemCategories.Aged:
-                    _strategies["aged"].Update(warehouseItem.Item);
-                    break;
-                case WarehouseItemCategories.Backstage:
-                    _strategies["backstage"].Update(warehouseItem.Item);
-                    break;
-                case WarehouseItemCategories.Sulfuras:
-                    _strategies["sulfuras"].Update(warehouseItem.Item);
-                    break;
-                case WarehouseItemCategories.Conjured:
-                    _strategies["conjured"].Update(warehouseItem.Item);
-                    break;
-                default:
-                    _strategies["default"].Update(warehouseItem.Item);
-                    break;
-            }
+            _strategies[warehouseItem.Category].Update(warehouseItem.Item);
         }
     }
 }
